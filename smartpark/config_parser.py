@@ -32,16 +32,31 @@ Finally, you can use `yaml` if you prefer.
 
 
 """
+import json
+from pathlib import Path
 
 
-
-def parse_config(config_file: str) -> dict:
+def parse_config(config_file: str = "config.json") -> dict:
     """Parse the config file and return the values as a dictionary"""
-    import json
-    with open(config_file) as input_file:
-        config = json.load(input_file)
-    return config["car_parks"][0]
+    try:
+        file_path = Path(config_file)
+        with open(file_path, 'r') as input_file:
+            config = json.load(input_file)
+        if "car_parks" in config:
+            return config["car_parks"][0]
+        else:
+            return config
+    except FileNotFoundError:
+        print("Config file not found")
+        return {}
+    except Exception as e:
+       print(f"An error occurred: {e}")
+       return {}
+
 
 if __name__ == '__main__':
-    cfg_data=parse_config("samples_and_snippets\\config.json")
+    current_dir = Path(__file__).parent
+    config_path = current_dir.parent / "samples_and_snippets" / "config.json"
+    print(f"Reading from: {config_path}")
+    cfg_data = parse_config(str(config_path))
     print(cfg_data)
