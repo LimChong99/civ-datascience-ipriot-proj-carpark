@@ -1,13 +1,13 @@
 {
-    "CarParks": [
+    "car_parks": [
         {
             "name": "raf-park-international",
-            "total-spaces": 130,
-            "total-cars": 0,
+            "total_spaces": 130,
+            "total_cars": 0,
             "location": "moondalup",
             "broker": "localhost",
             "port": 1883,
-            "Sensors": [
+            "sensors": [
                 {
                     "name": "sensor1",
                     "type": "entry"
@@ -17,7 +17,7 @@
                     "type": "exit"
                 }
             ],
-            "Displays": [
+            "displays": [
                 {
                     "name": "display1"
                 }
