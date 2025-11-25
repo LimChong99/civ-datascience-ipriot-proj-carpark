@@ -5,12 +5,10 @@ You need to split the classes here into two files, one for the CarParkDisplay an
 Attend to the TODOs in each class to complete the implementation."""
 from interfaces import CarparkSensorListener
 from interfaces import CarparkDataProvider
-import threading
-import time
 import tkinter as tk
 from typing import Iterable
 #TODO: replace this module with yours
-import mocks
+from carpark import CarparkManager
 
 # ------------------------------------------------------------------------------------#
 # You don't need to understand how to implement this class.                           #
@@ -77,39 +75,28 @@ class CarParkDisplay:
     # determines what fields appear in the UI
     fields = ['Available bays', 'Temperature', 'At']
 
-    def __init__(self,root):
-        self.window = WindowedDisplay(root,
-            'Moondalup', CarParkDisplay.fields)
-        updater = threading.Thread(target=self.check_updates)
-        updater.daemon = True
-        updater.start()
+    def __init__(self, root):
+        self.window = WindowedDisplay(root, 'Moondalup', CarParkDisplay.fields)
         self.window.show()
-        self._provider=None
+        self._provider = None
     
     @property
     def data_provider(self):
         return self._provider
+
     @data_provider.setter
     def data_provider(self,provider):
         if isinstance(provider,CarparkDataProvider):
             self._provider=provider
 
     def update_display(self):
-        field_values = dict(zip(CarParkDisplay.fields, [
-            f'{self._provider.available_spaces:03d}',
-            f'{self._provider.temperature:02d}℃',
-            time.strftime("%H:%M:%S",self._provider.current_time)
-        ]))
-        self.window.update(field_values)
-
-    def check_updates(self):
-        while True:
-            # TODO: This timer is pretty janky! Can you provide some kind of signal from your code
-            # to update the display?
-            time.sleep(1)
-            # When you get an update, refresh the display.
-            if self._provider is not None:
-                self.update_display()
+        if self._provider is not None:
+            field_values = dict(zip(CarParkDisplay.fields, [
+                f'{self._provider.available_spaces:03d}',
+                f'{self._provider.temperature:02d}℃',
+                self._provider.current_time
+            ]))
+            self.window.update(field_values)
 
 
 class CarDetectorWindow:
@@ -156,12 +143,10 @@ class CarDetectorWindow:
             self.listeners.append(listener)
 
     def incoming_car(self):
-#        print("Car goes in")
         for listener in self.listeners:
             listener.incoming_car(self.current_license)
 
     def outgoing_car(self):
-#        print("Car goes out")
         for listener in self.listeners:
             listener.outgoing_car(self.current_license)
 
@@ -174,14 +159,18 @@ if __name__ == '__main__':
     root = tk.Tk()
 
     #TODO: This is my dodgy mockup. Replace it with a good one!
-    mock=mocks.MockCarparkManager()
+    # 1. Initialize Manager
+    manager = CarparkManager()
 
-    display=CarParkDisplay(root)
     #TODO: Set the display to use your data source
-    display.data_provider=mock
+    # 2. Initialize Display
+    display = CarParkDisplay(root)
+    display.data_provider = manager
+    manager.register_observer(display)
 
-    detector=CarDetectorWindow(root)
     #TODO: Attach your event listener
-    detector.add_listener(mock)
-
+    # 3. Initialize Sensors
+    detector = CarDetectorWindow(root)
+    detector.add_listener(manager)
+    print("System is running. Use the 'Car Detector ULTRA' window to add cars.")
     root.mainloop()
