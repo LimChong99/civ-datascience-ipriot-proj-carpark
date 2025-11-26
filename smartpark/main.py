@@ -93,7 +93,7 @@ class CarParkDisplay:
         if self._provider is not None:
             field_values = dict(zip(CarParkDisplay.fields, [
                 f'{self._provider.available_spaces:03d}',
-                f'{self._provider.temperature:02d}℃',
+                f'{self._provider.temperature:02.0f}℃',
                 self._provider.current_time
             ]))
             self.window.update(field_values)
@@ -118,7 +118,7 @@ class CarDetectorWindow:
         )
         self.temp_label.grid(padx=10, pady=5,column=0,row=2)
         self.temp_var=tk.StringVar()
-        self.temp_var.trace_add("write",lambda x,y,v: self.temperature_changed(float(self.temp_var.get())))
+        self.temp_var.trace_add("write", lambda x, y, v: self.temperature_changed(float(self.temp_var.get() or 0)))
         self.temp_box=tk.Entry(
             self.root,font=('Arial', 20),textvariable=self.temp_var
         )
