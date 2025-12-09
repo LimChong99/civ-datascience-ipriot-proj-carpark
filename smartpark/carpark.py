@@ -54,7 +54,7 @@ class CarparkManager(CarparkSensorListener, CarparkDataProvider):
             self.total_spaces = 10
 
     def _log(self, message):
-        log_file = "carpark_log.txt"
+        log_file = Path(__file__).parent.parent / "carpark_log.txt"
         with open(log_file, "a") as f:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             f.write(f"[{timestamp}] {message}\n")
@@ -101,7 +101,7 @@ class CarparkManager(CarparkSensorListener, CarparkDataProvider):
         else:
             print(f"Ghost car detected: {license_plate} tried to exit but was not found.")
             self._log(f"GHOST EXIT ATTEMPT: {license_plate}")
-            self._publish_update()
+        self._publish_update()
 
     def temperature_reading(self, reading):
         self.current_temp = reading
